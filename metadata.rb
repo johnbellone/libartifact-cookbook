@@ -1,12 +1,13 @@
 name 'libartifact'
-maintainer 'Bloomberg Finance L.P.'
+maintainer 'John Bellone'
 maintainer_email 'jbellone@bloomberg.net'
 license 'apache2'
-description 'Installs/Configures libartifact'
-long_description 'Installs/Configures libartifact'
-version '0.1.0'
+description 'Library cookbook for managing release artifacts.'
+long_description 'Library cookbook for managing release artifacts.'
+version '1.0.0'
 
 supports 'centos', '>= 6.4'
 supports 'redhat', '>= 6.4'
 
+depends 'libarchive'
 depends 'poise'

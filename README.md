@@ -1,2 +1,2 @@
 # libartifact-cookbook
-TODO: Enter the cookbook description here.
+Library cookbook for managing release artifacts.
