@@ -25,7 +25,8 @@ class Chef::Resource::LibartifactFile < Chef::Resource::LWRPBase
             kind_of: String,
             required: true)
   attribute(:remote_checksum,
-            kind_of: String)
+            kind_of: [String, NilClass],
+            default: nil)
   attribute(:owner,
             kind_of: String,
             required: true)

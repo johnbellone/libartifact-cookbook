@@ -11,6 +11,24 @@ class Chef::Provider::LibartifactFile < Chef::Provider::LWRPBase
   include Poise
   include ArtifactCookbook::Helpers
 
+  def load_current_resource
+    @current_resource = Chef::Resource::LibartifactFile.new(@new_resource.name)
+    @current_resource.artifact_name(@new_resource.artifact_name)
+    @current_resource.artifact_version(@new_resource.artifact_version)
+    @current_resource.install_path(@new_resource.install_path)
+    @current_resource.remote_url(@new_resource.remote_url)
+    @current_resource.remote_checksum(nil)
+    @current_resource.owner(@new_resource.owner)
+    @current_resource.group(@new_resource.group)
+
+    if File.symlink?(current_path(@current_resource.artifact_name))
+      filename = File.readlink(current_path(@current_resource.artifact_name))
+      @current_resource.artifact_version(filename)
+    end
+
+    @current_resource
+  end
+
   action :create do
     include_recipe 'libarchive::default'
 
@@ -53,12 +71,20 @@ class Chef::Provider::LibartifactFile < Chef::Provider::LWRPBase
     link artifact_release_dir do
       owner @new_resource.owner
       group @new_resource.group
-      to current_symlink(@new_resource.artifact_name)
+      to current_path(@new_resource.artifact_name)
     end
   end
 
   action :delete do
-    file release_directory(@new_resource.artifact_name, @new_resource.artifact_version) do
+    artifact_release_dir = release_directory(@new_resource.artifact_name,
+                                             @new_resource.artifact_version)
+
+    link artifact_release_dir do
+      to current_path(@new_resource.artifact_name)
+      action :delete
+    end
+
+    file artifact_release_dir do
       action :delete
       only_if { File.exist?(path) }
     end

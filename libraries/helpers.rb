@@ -12,28 +12,22 @@ module ArtifactCookbook
       "#{name}-#{version}.#{extension}"
     end
 
-    # @param filename [String]
     def cached_filename(name, version, extension)
       File.join(Chef::Config[:file_cache_path], friendly_filename(name, version, extension))
     end
 
-    # @param name [String] Unique value for name of the artifact.
     def shared_path(name)
       File.join(base_path, name, 'shared')
     end
 
-    # @param name [String] Unique value for name of the artifact.
     def current_path(name)
       File.join(base_path, name, 'current')
     end
 
-    # @param name [String] Unique value for name of the artifact.
-    # @param version [String] Unique value for version of the artifact.
     def release_directory(name, version)
       File.join(base_path, name, 'releases', version)
     end
 
-    # @param name [String] Unique value for name of the artifact.
     def releases_path(name)
       File.join(base_path, name, 'releases')
     end
