@@ -32,8 +32,7 @@ Metrics/AbcSize:
 AllCops:
   Exclude:
     - 'Guardfile'
-    - 'test/**/*_test.rb'
-    - 'test/**/*_spec.rb'
+    - 'test/**/*_[test|spec].rb'
 
 Style/GuardClause:
   Enabled: false
