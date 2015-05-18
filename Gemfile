@@ -34,4 +34,6 @@ group :development do
   gem 'guard-rspec'
   gem 'guard-rubocop'
   gem 'rake'
+
+  gem 'poise'
 end
