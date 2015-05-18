@@ -1,5 +1,4 @@
 source 'https://rubygems.org'
-
 gem 'chef-sugar'
 gem 'chef-vault'
 gem 'halite', git: 'https://github.com/poise/halite'

@@ -1,7 +1,7 @@
 require 'chefspec'
 require 'chefspec/berkshelf'
 require 'chefspec/cacher'
-require 'chef-sugar'
+require 'chef/sugar'
 require 'chef-vault'
 
 RSpec.configure do |config|
@@ -11,7 +11,6 @@ RSpec.configure do |config|
 
   config.color = true
   config.alias_example_group_to :describe_recipe, type: :recipe
-  config.alias_example_group_to :describe_resource, type: :resource
 
   config.filter_run :focus
   config.run_all_when_everything_filtered = true
