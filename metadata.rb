@@ -1,7 +1,7 @@
 name 'libartifact'
 maintainer 'John Bellone'
 maintainer_email 'jbellone@bloomberg.net'
-license 'apache2'
+license 'Apache 2.0'
 description 'Library cookbook for managing release artifacts.'
 long_description 'Library cookbook for managing release artifacts.'
 version '1.0.0'

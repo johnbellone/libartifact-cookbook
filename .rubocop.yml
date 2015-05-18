@@ -26,13 +26,16 @@ CyclomaticComplexity:
 Style/FileName:
   Enabled: false
 
+Style/ClassAndModuleChildren:
+  Enabled: false
+
 Metrics/AbcSize:
   Enabled: false
 
 AllCops:
   Exclude:
     - 'Guardfile'
-    - 'test/**/*_[test|spec].rb'
+    - 'test/**/*[_test|_spec].rb'
 
 Style/GuardClause:
   Enabled: false

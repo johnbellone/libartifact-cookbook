@@ -1,8 +1,11 @@
 source 'https://rubygems.org'
-gem 'chef-sugar'
-gem 'chef-vault'
-gem 'halite', git: 'https://github.com/poise/halite'
-gem 'poise', git: 'https://github.com/poise/poise'
+
+group :integration, :development, :test do
+  gem 'chef-sugar'
+  gem 'chef-vault'
+  gem 'halite', git: 'https://github.com/poise/halite'
+  gem 'poise', git: 'https://github.com/poise/poise'
+end
 
 group :lint do
   gem 'foodcritic'
@@ -31,9 +34,13 @@ group :integration do
 end
 
 group :development do
+  gem 'guard'
   gem 'guard-kitchen'
-  gem 'guard-foodcritic'
   gem 'guard-rspec'
   gem 'guard-rubocop'
   gem 'rake'
+end
+
+group :doc do
+  gem 'yard'
 end

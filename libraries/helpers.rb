@@ -6,30 +6,33 @@
 #
 module LibartifactCookbook
   module Helpers
-    extend self
+    # @!classmethods
+    module ClassMethods
+      def friendly_name(name, version, extension)
+        "#{name}-#{version}.#{extension}"
+      end
 
-    def friendly_name(name, version, extension)
-      "#{name}-#{version}.#{extension}"
+      def cached_filename(name, version, extension)
+        File.join(Chef::Config[:file_cache_path], friendly_filename(name, version, extension))
+      end
+
+      def shared_path(name)
+        File.join(base_path, name, 'shared')
+      end
+
+      def current_path(name)
+        File.join(base_path, name, 'current')
+      end
+
+      def release_directory(name, version)
+        File.join(base_path, name, 'releases', version)
+      end
+
+      def releases_path(name)
+        File.join(base_path, name, 'releases')
+      end
     end
 
-    def cached_filename(name, version, extension)
-      File.join(Chef::Config[:file_cache_path], friendly_filename(name, version, extension))
-    end
-
-    def shared_path(name)
-      File.join(base_path, name, 'shared')
-    end
-
-    def current_path(name)
-      File.join(base_path, name, 'current')
-    end
-
-    def release_directory(name, version)
-      File.join(base_path, name, 'releases', version)
-    end
-
-    def releases_path(name)
-      File.join(base_path, name, 'releases')
-    end
+    extend ClassMethods
   end
 end

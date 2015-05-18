@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe 'Artifact Remote File' do
+describe 'libartifact_file' do
   cached(:chef_run) do
-    ChefSpec::SoloRunner.new(step_into: 'libartifact_file').converge('artifact-test::default')
+    ChefSpec::SoloRunner.new(step_into: 'libartifact_file').converge('twbs::default')
   end
 
   context 'with default attributes' do
