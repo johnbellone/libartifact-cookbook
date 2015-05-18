@@ -1,6 +1,6 @@
 require 'chefspec'
 require 'chefspec/berkshelf'
-require 'chefspec/cachier'
+require 'chefspec/cacher'
 require 'chef-sugar'
 require 'chef-vault'
 
