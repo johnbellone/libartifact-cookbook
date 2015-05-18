@@ -3,5 +3,5 @@ extension 'halite'
 metadata
 
 group :development, :test do
-  cookbook 'artifact-test', path: File.expand_path('../test/fixtures/artifact-test', __FILE__)
+  cookbook 'twbs', path: File.expand_path('../test/fixtures/twbs', __FILE__)
 end
