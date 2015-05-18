@@ -7,9 +7,10 @@
 require_relative 'helpers'
 require 'fileutils'
 
-class Chef::Provider::LibartifactFile < Chef::Provider::LWRPBase
+class Chef::Provider::LibartifactRemoteFile < Chef::Provider::LWRPBase
   include Poise
-  include ArtifactCookbook::Helpers
+  include LibartifactCookbook::Helpers
+  provides(:libartifact_file)
 
   def load_current_resource
     @current_resource = Chef::Resource::LibartifactFile.new(@new_resource.name)

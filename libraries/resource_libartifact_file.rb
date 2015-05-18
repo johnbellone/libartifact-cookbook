@@ -7,6 +7,7 @@
 
 class Chef::Resource::LibartifactFile < Chef::Resource::LWRPBase
   include Poise
+  provides(:libartifact_file)
   actions(:create, :delete)
   default_action(:create)
 

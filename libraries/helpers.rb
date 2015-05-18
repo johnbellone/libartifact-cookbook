@@ -4,7 +4,7 @@
 #
 # Copyright (C) 2015 Bloomberg Finance L.P.
 #
-module ArtifactCookbook
+module LibartifactCookbook
   module Helpers
     extend self
 
