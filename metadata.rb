@@ -6,8 +6,9 @@ description 'Library cookbook for managing release artifacts.'
 long_description 'Library cookbook for managing release artifacts.'
 version '1.0.0'
 
-supports 'centos', '>= 6.4'
-supports 'redhat', '>= 6.4'
+supports 'ubuntu', '>= 12.04'
+supports 'centos', '>= 5.8'
+supports 'redhat', '>= 5.8'
 
 depends 'libarchive'
 depends 'poise'

@@ -1,7 +1,19 @@
+group 'twbs' do
+  system true
+end
+
+user 'twbs' do
+  system true
+  gid 'twbs'
+  supports manage_home: true
+end
+
 libartifact_file 'twbs-v3.3.1' do
   artifact_name 'twbs'
   artifact_version '3.3.1'
   remote_url node['twbs']['remote_url']
+  owner 'twbs'
+  group 'twbs'
   action [:create, :delete]
 end
 
@@ -17,6 +29,8 @@ libartifact_file "twbs-v#{node['twbs']['version']}" do
   artifact_name 'twbs'
   artifact_version node['twbs']['version']
   remote_url node['twbs']['remote_url']
-  remote_checksuwgem node['twbs']['checksum']
+  remote_checksum node['twbs']['checksum']
+  owner 'twbs'
+  group 'twbs'
   action :create
 end

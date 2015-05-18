@@ -29,9 +29,11 @@ class Chef::Resource::LibartifactFile < Chef::Resource::LWRPBase
             kind_of: [String, NilClass],
             default: nil)
   attribute(:owner,
-            kind_of: String,
-            required: true)
+            kind_of: [String, NilClass],
+            required: true,
+            default: nil)
   attribute(:group,
-            kind_of: String,
-            required: true)
+            kind_of: [String, NilClass],
+            required: true,
+            default: nil)
 end
