@@ -1,10 +1,6 @@
 require 'spec_helper'
 
 describe 'LWRP: libartifact_file' do
-  before do
-    allow(FileUtils).to receive(:chown_R).and_return(true)
-  end
-
   # Ensure that the fixture cookbook is capable of converging.
   context 'with default attributes' do
     cached(:chef_run) do

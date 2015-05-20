@@ -27,11 +27,3 @@ RSpec.configure do |config|
     mocks.verify_partial_doubles = true
   end
 end
-
-def chef_vault_mock(bag, item, value)
-  allow(ChefVault::Item).to receive(:load).with(bag, item).and_return(value)
-end
-
-def chef_vault_mock_for_environment(bag, item, environment, value)
-  chef_vault_mock(bag, item, environment, environment => value)
-end

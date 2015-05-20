@@ -5,7 +5,6 @@
 # Copyright (C) 2015 Bloomberg Finance L.P.
 #
 require 'poise'
-require 'fileutils'
 
 # Resource for a release artifact on the system.
 # @since 1.0.0
@@ -26,9 +25,8 @@ class Chef::Resource::LibartifactFile < Chef::Resource
             default: '/srv',
             cannot_be: :empty)
   attribute(:remote_url,
-            kind_of: String,
-            required: true,
-            cannot_be: :empty)
+            kind_of: [Array, String],
+            required: true)
   attribute(:remote_checksum,
             kind_of: [String, NilClass],
             default: nil)
@@ -38,6 +36,9 @@ class Chef::Resource::LibartifactFile < Chef::Resource
   attribute(:group,
             kind_of: [String, NilClass],
             default: nil)
+  attribute(:extract_options,
+            kind_of: [Array, Symbol],
+            default: :no_overwrite)
 
   # The URL where to download the artifact from.
   # @return [String]
@@ -48,66 +49,53 @@ class Chef::Resource::LibartifactFile < Chef::Resource
   # The absolute path to the artifact's release directory.
   # @return [String]
   def release_path
-    ::File.join(base_path, 'releases', artifact_version)
+    ::File.join(install_path, artifact_name, artifact_version)
   end
 
   # The absolute path to the current symlink for this artifact.
   # @return [String]
   def current_path
-    ::File.join(base_path, 'current')
+    ::File.join(install_path, artifact_name, 'current')
   end
 
-  # The absolute path to the artifact installation directory.
-  # @return [String]
-  def base_path
-    ::File.join(install_path, artifact_name)
-  end
-
-  # Downloads the remote file, unpacks and creates a symlink.
+  # Retrieves the `remote_file` from `download_url`, unpacks it and
+  # creates a symlink to `current_path`.
   action(:create) do
     include_recipe 'libarchive::default'
 
     extension = ::File.extname(new_resource.download_url)
-    cached_filename = [new_resource.artifact_name,
-                       new_resource.artifact_version,
-                       extension].join('-')
+    friendly_name = "#{new_resource.artifact_name}-#{new_resource.artifact_version}#{extension}"
 
-    archive = remote_file cached_filename do
-      source new_resource.download_url
-      checksum new_resource.remote_checksum
-    end
-
-    directory ::File.join(new_resource.base_path, 'releases') do
+    directory ::File.join(new_resource.install_path, new_resource.artifact_name) do
       recursive true
       owner new_resource.owner
       group new_resource.group
     end
 
-    libarchive_file cached_filename do
-      path archive.path
-      extract_to new_resource.download_url
-      extract_options :no_overwrite
+    archive = remote_file new_resource.download_url do
+      path ::File.join(Chef::Config[:file_cache_path], friendly_name)
+      source new_resource.download_url
+      checksum new_resource.remote_checksum
+      action :create_if_missing
     end
 
-    if new_resource.owner || new_resource.group
-      FileUtils.chown_R(new_resource.owner,
-                        new_resource.group,
-                        new_resource.release_path)
-    end
-
-    link new_resource.release_path do
+    libarchive_file archive.path do
+      extract_to new_resource.release_path
+      extract_options new_resource.extract_options
       owner new_resource.owner
       group new_resource.group
-      to new_resource.current_path
+    end
+
+    link new_resource.current_path do
+      to new_resource.release_path
     end
   end
 
-  # Removes the current symlink and deletes the release path.
-  # @todo At some point it would make sense if this supported some
-  # kind of smart rollback. Otherwise we're left with no current link.
+  # Removes the symlink at `current_path` and deletes the
+  # directory at `release_path`.
   action(:delete) do
-    link new_resource.release_path do
-      to new_resource.current_path
+    link new_resource.current_path do
+      to new_resource.release_path
       action :delete
     end
 
