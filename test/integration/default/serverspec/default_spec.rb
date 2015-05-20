@@ -8,9 +8,8 @@ end
 
 describe file('/srv/twbs/current') do
   it { should be_symlink }
-  it { should be_linked_to '/srv/tws/3.3.4' }
-  it { should be_owned_by 'twbs' }
-  it { should be_grouped_into 'twbs' }
+  # Uncomment when https://github.com/serverspec/specinfra/pull/389
+  #it { should be_linked_to '/srv/tws/3.3.4' }
 end
 
 describe file('/srv/twbs/3.3.4') do
