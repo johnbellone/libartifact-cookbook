@@ -4,6 +4,7 @@
 #
 # Copyright (C) 2015 Bloomberg Finance L.P.
 #
+require 'poise'
 require 'fileutils'
 
 # Resource for a release artifact on the system.
@@ -33,28 +34,50 @@ class Chef::Resource::LibartifactFile < Chef::Resource
             default: nil)
   attribute(:owner,
             kind_of: [String, NilClass],
-            required: true,
             default: nil)
   attribute(:group,
             kind_of: [String, NilClass],
-            required: true,
             default: nil)
+
+  # The URL where to download the artifact from.
+  # @return [String]
+  def download_url
+    remote_url % { name: artifact_name, version: artifact_version }
+  end
+
+  # The absolute path to the artifact's release directory.
+  # @return [String]
+  def release_path
+    ::File.join(base_path, 'releases', artifact_version)
+  end
+
+  # The absolute path to the current symlink for this artifact.
+  # @return [String]
+  def current_path
+    ::File.join(base_path, 'current')
+  end
+
+  # The absolute path to the artifact installation directory.
+  # @return [String]
+  def base_path
+    ::File.join(install_path, artifact_name)
+  end
 
   # Downloads the remote file, unpacks and creates a symlink.
   action(:create) do
     include_recipe 'libarchive::default'
 
-    extension = File.extname(new_resource.remote_url)
+    extension = ::File.extname(new_resource.download_url)
     cached_filename = [new_resource.artifact_name,
                        new_resource.artifact_version,
                        extension].join('-')
 
     archive = remote_file cached_filename do
-      source new_resource.remote_url
+      source new_resource.download_url
       checksum new_resource.remote_checksum
     end
 
-    directory File.join(new_resource.base_path, 'releases') do
+    directory ::File.join(new_resource.base_path, 'releases') do
       recursive true
       owner new_resource.owner
       group new_resource.group
@@ -62,7 +85,7 @@ class Chef::Resource::LibartifactFile < Chef::Resource
 
     libarchive_file cached_filename do
       path archive.path
-      extract_to new_resource.release_path
+      extract_to new_resource.download_url
       extract_options :no_overwrite
     end
 
@@ -92,23 +115,5 @@ class Chef::Resource::LibartifactFile < Chef::Resource
       recursive true
       action :delete
     end
-  end
-
-  # The absolute path to the artifact's release directory.
-  # @return [String]
-  def release_path
-    File.join(base_path, 'releases', new_resource.artifact_version)
-  end
-
-  # The absolute path to the current symlink for this artifact.
-  # @return [String]
-  def current_path
-    File.join(base_path, 'current')
-  end
-
-  # The absolute path to the artifact installation directory.
-  # @return [String]
-  def base_path
-    File.join(new_resource.install_path, new_resource.artifact_name)
   end
 end

@@ -3,6 +3,7 @@ source 'https://rubygems.org'
 group :integration, :development, :test do
   gem 'halite', git: 'https://github.com/poise/halite'
   gem 'poise', git: 'https://github.com/poise/poise'
+  gem 'poise-boiler', git: 'https://github.com/poise/poise-boiler'
 end
 
 group :lint do

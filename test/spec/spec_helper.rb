@@ -1,8 +1,6 @@
 require 'chefspec'
 require 'chefspec/berkshelf'
 require 'chefspec/cacher'
-require 'chef/sugar'
-require 'chef-vault'
 
 RSpec.configure do |config|
   # Set default platform family and version for ChefSpec.
