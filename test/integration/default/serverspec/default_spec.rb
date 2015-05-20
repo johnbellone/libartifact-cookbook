@@ -13,12 +13,6 @@ describe file('/srv/twbs/current') do
   it { should be_grouped_into 'twbs' }
 end
 
-describe file('/srv/twbs/shared') do
-  it { should be_directory }
-  it { should be_owned_by 'twbs' }
-  it { should be_grouped_into 'twbs' }
-end
-
 describe file('/srv/twbs/releases/3.3.4') do
   it { should be_directory }
   it { should be_owned_by 'twbs' }
