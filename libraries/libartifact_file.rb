@@ -4,140 +4,111 @@
 #
 # Copyright (C) 2015 Bloomberg Finance L.P.
 #
-require_relative 'helpers'
 require 'fileutils'
 
-class Chef
-  # The basic model for a release artifact.
-  #
-  # @since 1.0.0
-  class Resource::LibartifactFile < Resource
-    include Poise
-    provides(:libartifact_file)
+# Resource for a release artifact on the system.
+# @since 1.0.0
+class Chef::Resource::LibartifactFile < Chef::Resource
+  include Poise(fused: true)
+  provides(:libartifact_file)
+  actions(:create, :delete)
 
-    actions(:create, :delete)
-    default_action(:create)
+  attribute(:artifact_name,
+            kind_of: String,
+            name_attribute: true,
+            cannot_be: :empty)
+  attribute(:artifact_version,
+            kind_of: String,
+            required: true)
+  attribute(:install_path,
+            kind_of: String,
+            default: '/srv',
+            cannot_be: :empty)
+  attribute(:remote_url,
+            kind_of: String,
+            required: true,
+            cannot_be: :empty)
+  attribute(:remote_checksum,
+            kind_of: [String, NilClass],
+            default: nil)
+  attribute(:owner,
+            kind_of: [String, NilClass],
+            required: true,
+            default: nil)
+  attribute(:group,
+            kind_of: [String, NilClass],
+            required: true,
+            default: nil)
 
-    attribute(:artifact_name,
-      kind_of: String,
-      name_attribute: true,
-      cannot_be: :empty)
-    attribute(:artifact_version,
-      kind_of: String,
-      required: true)
-    attribute(:install_path,
-      kind_of: String,
-      default: lazy { node['libartifact']['install_path'] },
-      cannot_be: :empty)
-    attribute(:remote_url,
-      kind_of: String,
-      required: true)
-    attribute(:remote_checksum,
-      kind_of: [String, NilClass],
-      default: nil)
-    attribute(:owner,
-      kind_of: [String, NilClass],
-      required: true,
-      default: nil)
-    attribute(:group,
-      kind_of: [String, NilClass],
-      required: true,
-      default: nil)
+  # Downloads the remote file, unpacks and creates a symlink.
+  action(:create) do
+    include_recipe 'libarchive::default'
+
+    extension = File.extname(new_resource.remote_url)
+    cached_filename = [new_resource.artifact_name,
+                       new_resource.artifact_version,
+                       extension].join('-')
+
+    archive = remote_file cached_filename do
+      source new_resource.remote_url
+      checksum new_resource.remote_checksum
+    end
+
+    directory File.join(new_resource.base_path, 'releases') do
+      recursive true
+      owner new_resource.owner
+      group new_resource.group
+    end
+
+    libarchive_file cached_filename do
+      path archive.path
+      extract_to new_resource.release_path
+      extract_options :no_overwrite
+    end
+
+    if new_resource.owner || new_resource.group
+      FileUtils.chown_R(new_resource.owner,
+                        new_resource.group,
+                        new_resource.release_path)
+    end
+
+    link new_resource.release_path do
+      owner new_resource.owner
+      group new_resource.group
+      to new_resource.current_path
+    end
   end
 
-  # The provider which manages a release artifact from a remote URL.
-  #
-  # @since 1.0.0
-  class Provider::LibartifactFile < Provider
-    include LibartifactCookbook::Helpers
-    include Poise
-    provides(:libartifact_file)
-
-    def load_current_resource
-      @current_resource = Chef::Resource::LibartifactFile.new(@new_resource.name)
-      @current_resource.artifact_name(@new_resource.artifact_name)
-      @current_resource.artifact_version(@new_resource.artifact_version)
-      @current_resource.install_path(@new_resource.install_path)
-      @current_resource.remote_url(@new_resource.remote_url)
-      @current_resource.remote_checksum(nil)
-      @current_resource.owner(@new_resource.owner)
-      @current_resource.group(@new_resource.group)
-
-      if File.symlink?(current_path(@current_resource.artifact_name))
-        filename = File.readlink(current_path(@current_resource.artifact_name))
-        @current_resource.artifact_version(filename)
-      end
-
-      @current_resource
+  # Removes the current symlink and deletes the release path.
+  # @todo At some point it would make sense if this supported some
+  # kind of smart rollback. Otherwise we're left with no current link.
+  action(:delete) do
+    link new_resource.release_path do
+      to new_resource.current_path
+      action :delete
     end
 
-    def action_create
-      extension = File.extname(@new_resource.remote_url)
-      cached_filename = cached_filename(@new_resource.artifact_name,
-        @new_resource.artifact_version,
-        extension)
-      artifact_release_dir = release_directory(@new_resource.artifact_name,
-        @new_resource.artifact_version)
-
-      converge_by("#{@new_resource.name} - :create #{@new_resource.artifact_name}") do
-        notifying_block do
-          include_recipe 'libarchive::default'
-
-          archive = remote_file cached_filename do
-            source @new_resource.remote_url
-            checksum @new_resource.remote_checksum
-          end
-
-          directory shared_path(@new_resource.artifact_name) do
-            recursive true
-            owner @new_resource.owner
-            group @new_resource.group
-          end
-
-          directory releases_path(@new_resource.artifact_name) do
-            recursive true
-            owner @new_resource.owner
-            group @new_resource.group
-          end
-
-          libarchive_file cached_filename do
-            path archive.path
-            extract_to release_directory
-            extract_options :no_overwrite
-          end
-
-          if @new_resource.owner || @new_resource.group
-            FileUtils.chown_R(@new_resource.owner,
-              @new_resource.group,
-              artifact_release_dir)
-          end
-
-          link artifact_release_dir do
-            owner @new_resource.owner
-            group @new_resource.group
-            to current_path(@new_resource.artifact_name)
-          end
-        end
-      end
+    directory new_resource.release_path do
+      recursive true
+      action :delete
     end
+  end
 
-    def action_delete
-      artifact_release_dir = release_directory(@new_resource.artifact_name,
-        @new_resource.artifact_version)
+  # The absolute path to the artifact's release directory.
+  # @return [String]
+  def release_path
+    File.join(base_path, 'releases', new_resource.artifact_version)
+  end
 
-      converge_by("#{@new_resource.name} - :delete #{@new_resource.artifact_name}") do
-        notifying_block do
-          link artifact_release_dir do
-            to current_path(@new_resource.artifact_name)
-            action :delete
-          end
+  # The absolute path to the current symlink for this artifact.
+  # @return [String]
+  def current_path
+    File.join(base_path, 'current')
+  end
 
-          file artifact_release_dir do
-            action :delete
-            only_if { File.exist?(path) }
-          end
-        end
-      end
-    end
+  # The absolute path to the artifact installation directory.
+  # @return [String]
+  def base_path
+    File.join(new_resource.install_path, new_resource.artifact_name)
   end
 end
