@@ -11,4 +11,4 @@ supports 'centos', '>= 5.8'
 supports 'redhat', '>= 5.8'
 
 depends 'libarchive'
-depends 'poise'
+depends 'poise', '~> 2.0'
