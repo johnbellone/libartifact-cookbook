@@ -108,6 +108,7 @@ class Chef::Resource::LibartifactFile < Chef::Resource
       end
 
       directory new_resource.release_path do
+        recursive true
         action :delete
       end
     end
