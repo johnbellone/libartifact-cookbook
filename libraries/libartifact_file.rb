@@ -36,6 +36,9 @@ class Chef::Resource::LibartifactFile < Chef::Resource
   attribute(:group,
             kind_of: [String, NilClass],
             default: nil)
+  attribute(:symlink_path,
+            kind_of: [String, NilClass],
+            default: lazy { current_path })
   attribute(:extract_options,
             kind_of: [Array, Symbol],
             default: :no_overwrite)
@@ -58,50 +61,59 @@ class Chef::Resource::LibartifactFile < Chef::Resource
     ::File.join(install_path, artifact_name, 'current')
   end
 
+  def symlink?
+    new_resource.symlink == true
+  end
+
   # Retrieves the `remote_file` from `download_url`, unpacks it and
-  # creates a symlink to `current_path`.
+  # creates a symlink to `symlink_path`.
   action(:create) do
-    include_recipe 'libarchive::default'
+    notifying_block do
+      include_recipe 'libarchive::default'
 
-    extension = ::File.extname(new_resource.download_url)
-    friendly_name = "#{new_resource.artifact_name}-#{new_resource.artifact_version}#{extension}"
+      extension = ::File.extname(new_resource.download_url)
+      friendly_name = "#{new_resource.artifact_name}-#{new_resource.artifact_version}#{extension}"
 
-    directory ::File.join(new_resource.install_path, new_resource.artifact_name) do
-      recursive true
-      owner new_resource.owner
-      group new_resource.group
-    end
+      directory ::File.join(new_resource.install_path, new_resource.artifact_name) do
+        owner new_resource.owner
+        group new_resource.group
+        mode '0755'
+      end
 
-    archive = remote_file new_resource.download_url do
-      path ::File.join(Chef::Config[:file_cache_path], friendly_name)
-      source new_resource.download_url
-      checksum new_resource.remote_checksum
-      action :create_if_missing
-    end
+      archive = remote_file new_resource.download_url do
+        path ::File.join(Chef::Config[:file_cache_path], friendly_name)
+        source new_resource.download_url
+        checksum new_resource.remote_checksum
+        action :create_if_missing
+      end
 
-    libarchive_file archive.path do
-      extract_to new_resource.release_path
-      extract_options new_resource.extract_options
-      owner new_resource.owner
-      group new_resource.group
-    end
+      libarchive_file archive.path do
+        extract_to new_resource.release_path
+        extract_options new_resource.extract_options
+        owner new_resource.owner
+        group new_resource.group
+      end
 
-    link new_resource.current_path do
-      to new_resource.release_path
+      link new_resource.symlink_path do
+        to new_resource.release_path
+        only_if { new_resource.symlink_path }
+      end
     end
   end
 
-  # Removes the symlink at `current_path` and deletes the
+  # Removes the symlink at `symlink_path` and deletes the
   # directory at `release_path`.
   action(:delete) do
-    link new_resource.current_path do
-      to new_resource.release_path
-      action :delete
-    end
+    notifying_block do
+      link new_resource.symlink_path do
+        to new_resource.release_path
+        action :delete
+        only_if { new_resource.symlink_path }
+      end
 
-    directory new_resource.release_path do
-      recursive true
-      action :delete
+      directory new_resource.release_path do
+        action :delete
+      end
     end
   end
 end
