@@ -61,10 +61,6 @@ class Chef::Resource::LibartifactFile < Chef::Resource
     ::File.join(install_path, artifact_name, 'current')
   end
 
-  def symlink?
-    new_resource.symlink == true
-  end
-
   # Retrieves the `remote_file` from `download_url`, unpacks it and
   # creates a symlink to `symlink_path`.
   action(:create) do
