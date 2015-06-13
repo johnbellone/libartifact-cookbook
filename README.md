@@ -64,22 +64,22 @@ want to restart a service you can do so using [Chef notifications][4].
 
 ## libartifact_file Resource/Provider
 ### Actions
-- *create* - Downloads and extracts a released artifact.
-- *delete* - Deletes a release artifact and unlinks the current
-  symlink.
+| Name | Description |
+| ---- | ----------- |
+| create | Downloads and extracts a released artifact. |
+| delete | Deletes a release artifact and unlinks the current symlink. |
 
-### Parameter Attributes
-- *artifact_name* - Name of the release artifact.
-- *artifact_version* - Version of the release artifact.
-- *install_path* - Absolute path to the _base location_ for extracting
-  the release artifact.
-- *remote_url* - String (or Array) of locations to download the
-  release artifact.
-- *remote_checksum* - SHA256 checksum of the release artifact.
-- *owner* - Owner of the release artifact (and extracted files).
-- *group* - Group of the release artifact (and extracted files).
-- *extract_options* - [Extraction options][6] to pass to the
-  [libarchive cookbook][2].
+### Parameters
+| Key | Type | Description |
+| --- | ---- | ----------- |
+| artifact_name | String | Name of the release artifact. |
+| artifact_version | String | Version of the release artifact. |
+| install_path | String | Absolute path to the _base location_ for extracting release artifact. |
+| binary_url | String, Array | Location(s) to download the release artifact. |
+| binary_checksum | String | SHA256 checksum of the release artifact. |
+| owner | String | Owner of the release artifact. |
+| group | String | Group of the release artifact. |
+| extract_options | Hash | [Extraction options][6] to pass into the [libarchive cookbook][2]. |
 
 [1]: http://blog.vialstudios.com/the-environment-cookbook-pattern/#thelibrarycookbook
 [2]: https://github.com/reset/libarchive-cookbook
