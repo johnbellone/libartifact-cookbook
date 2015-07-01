@@ -11,7 +11,7 @@ require 'poise'
 class Chef::Resource::LibartifactFile < Chef::Resource
   include Poise(fused: true)
   provides(:libartifact_file)
-  actions(:create, :delete)
+  default_action(:create)
 
   attribute(:artifact_name, kind_of: String, name_attribute: true)
   attribute(:artifact_version, kind_of: String, required: true)
