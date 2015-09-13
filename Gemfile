@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
-gem 'poise', '~> 2.0'
+gem 'poise', '~> 2.2'
 gem 'poise-service', '~> 1.0'
 gem 'poise-boiler'
 
@@ -30,7 +30,6 @@ group :integration do
 end
 
 group :development do
-  gem 'guard'
   gem 'guard-kitchen'
   gem 'guard-rspec'
   gem 'guard-rubocop'
