@@ -52,7 +52,7 @@ module LibArtifactCookbook
           end
 
           archive_path = ::File.join(Chef::Config[:file_cache_path], friendly_name)
-          archive = remote_file new_resource.remote_url do
+          remote_file new_resource.remote_url do
             path archive_path
             source new_resource.remote_url
             checksum new_resource.remote_checksum
