@@ -60,7 +60,7 @@ module LibArtifactCookbook
             notifies :extract, "libarchive_file[#{archive_path}]"
           end
 
-          libarchive_file archive.path do
+          libarchive_file archive_path do
             action :nothing
             extract_to new_resource.release_path
             extract_options new_resource.extract_options
