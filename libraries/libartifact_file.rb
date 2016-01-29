@@ -57,15 +57,15 @@ module LibArtifactCookbook
             source new_resource.remote_url
             checksum new_resource.remote_checksum
             action :create_if_missing
-            notifies :extract, "libarchive_file[#{archive_path}]"
           end
 
           libarchive_file archive_path do
-            action :nothing
+            action :extract
             extract_to new_resource.release_path
             extract_options new_resource.extract_options
             owner new_resource.owner
             group new_resource.group
+            not_if { ::File.exist? new_resource.release_path }
           end
 
           link new_resource.symlink_path do
