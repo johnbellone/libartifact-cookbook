@@ -51,18 +51,21 @@ module LibArtifactCookbook
             mode '0755'
           end
 
-          archive = remote_file new_resource.remote_url do
-            path ::File.join(Chef::Config[:file_cache_path], friendly_name)
+          archive_path = ::File.join(Chef::Config[:file_cache_path], friendly_name)
+          remote_file new_resource.remote_url do
+            path archive_path
             source new_resource.remote_url
             checksum new_resource.remote_checksum
             action :create_if_missing
           end
 
-          libarchive_file archive.path do
+          libarchive_file archive_path do
+            action :extract
             extract_to new_resource.release_path
             extract_options new_resource.extract_options
             owner new_resource.owner
             group new_resource.group
+            not_if { ::File.exist? new_resource.release_path }
           end
 
           link new_resource.symlink_path do
