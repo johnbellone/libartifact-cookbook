@@ -42,12 +42,12 @@ module LibArtifactCookbook
       action(:create) do
         include_recipe 'libarchive::default'
         notifying_block do
-          extension = ::File.extname(new_resource.remote_url)
+          extension = ::File.extname(::URI.parse(new_resource.remote_url).path)
           friendly_name = "#{new_resource.artifact_name}-#{new_resource.artifact_version}#{extension}"
 
           directory ::File.join(new_resource.install_path, new_resource.artifact_name) do
-            owner new_resource.owner
-            group new_resource.group
+            owner new_resource.owner if new_resource.owner
+            group new_resource.group if new_resource.group
             mode '0755'
           end
 
@@ -63,8 +63,8 @@ module LibArtifactCookbook
             action :extract
             extract_to new_resource.release_path
             extract_options new_resource.extract_options
-            owner new_resource.owner
-            group new_resource.group
+            owner new_resource.owner if new_resource.owner
+            group new_resource.group if new_resource.group
             not_if { ::File.exist? new_resource.release_path }
           end
 
