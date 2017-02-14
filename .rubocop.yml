@@ -38,6 +38,9 @@ Style/PercentLiteralDelimiters:
 Metrics/AbcSize:
   Enabled: false
 
+Metrics/BlockLength:
+  Enabled: false
+
 AllCops:
   Exclude:
     - 'Guardfile'

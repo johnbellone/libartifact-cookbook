@@ -3,8 +3,8 @@ gem 'poise', '~> 2.2'
 gem 'poise-boiler'
 
 group :lint do
-  gem 'rubocop'
   gem 'foodcritic'
+  gem 'rubocop'
 end
 
 group :unit do
