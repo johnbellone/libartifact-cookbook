@@ -6,8 +6,8 @@ notifications:
 script: bundle exec rake travis
 cache: bundler
 rvm:
-  - 2.1
-  - 2.2
+  - 2.2.5
+  - 2.3.1
 branches:
   only:
     - master
